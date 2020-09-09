@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>恩施州地图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@4.8.0/dist/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+        integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+        crossorigin="anonymous"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+        }
+
+        #main {
+            width: 800px;
+            height: 600px;
+            border: 1px solid #ddd;
+        }
+
+        /*建议长宽比0.75，符合审美*/
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <script type="text/javascript">
+            var myChart = echarts.init(document.getElementById('main'));
+            var dataList = [
+                { name: '恩施市', value: 170 },
+                { name: '利川市', value: 30 },
+                { name: '建始县', value: 20 },
+                { name: '巴东县', value: 320 },
+                { name: '宣恩县', value: 60 },
+                { name: '咸丰县', value: 110 },
+                { name: '来凤县', value: 210 },
+                { name: '鹤峰县', value: 10 }
+            ];
+
+            myChart.showLoading();
+
+            $.get('./enshi.json', function (jsonData) {
+                myChart.hideLoading();
+
+                echarts.registerMap('ENSHI', jsonData);
+                option = {
+                    title: {
+                        text: '恩施土家族苗族自治州',
+                        subtext: '空气质量指数分布图',
+                        sublink: 'http://www.esems.cn',
+                        left: 'left'
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        showDelay: 0,
+                        transitionDuration: 0.2,
+                        formatter: function (params) {
+                            var value = (params.value + '').split('.');
+                            value = value[0].replace(/(\d{1,3})(?=(?:\d{3})+(?!\d))/g, '$1,');
+                            return params.seriesName + '<br/>' + params.name + ': ' + value;
+                        }
+                    },
+                    visualMap: {
+                        type: 'piecewise',
+                        pieces: [
+                            { min: 300, label: '严重污染' }, // 不指定 max，表示 max 为无限大（Infinity）。
+                            { min: 201, max: 300, label: '重度污染' },
+                            { min: 151, max: 200, label: '中度污染' },
+                            { min: 101, max: 150, label: '轻度污染' },
+                            { min: 51, max: 100, label: '良' },
+                            { min: 0, max: 50, label: '优' }     // 不指定 min，表示 min 为无限大（-Infinity）。
+                        ],
+                        color: ['#7e0223', '#b56cb3', '#fe0202', '#fea502', '#fefe02', '#02e402']//取值范围的颜色
+                    },
+                    geo: {
+                        map: 'ENSHI',
+                        roam: true,//不开启缩放和平移
+                        zoom: 1.1,//视角缩放比例
+                        label: {
+                            normal: {
+                                show: true,
+                                fontSize: '12',
+                                color: 'rgba(0,0,0,0.8)'
+                            }
+                        },
+                        itemStyle: {
+                            normal: {
+                                borderColor: 'rgba(0, 0, 0, 0.2)'
+                            },
+                            emphasis: {
+                                areaColor: '#F3B329',//鼠标选择区域颜色
+                                shadowOffsetX: 0,
+                                shadowOffsetY: 0,
+                                shadowBlur: 20,
+                                borderWidth: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.6)'
+                            }
+                        }
+                    },
+                    toolbox: {
+                        show: true,
+                        orient: 'horizontal',
+                        left: 'left',
+                        top: 'top',
+                    },
+                    series: [
+                        {
+                            name: '恩施土家族苗族自治州',
+                            type: 'map',
+                            geoIndex: 0,
+                            data: dataList,
+                        }
+                    ]
+                };
+
+                myChart.setOption(option);
+            });
+        </script>
+</body>
+
+</html>
